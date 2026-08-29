@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌面看板</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="card-glow" id="card-glow">
+      <main class="card" id="card">
+        <header class="card-header">
+          <span class="brand-dot"></span>
+          <span class="brand-title">DASHBOARD</span>
+          <div class="header-actions">
+            <button id="pin-btn" class="icon-btn" title="悬浮置顶（当前贴在桌面）" aria-label="悬浮置顶">📌</button>
+            <button id="memo-toggle" class="icon-btn" title="备忘录" aria-label="备忘录">🗒</button>
+            <button id="quit-btn" class="icon-btn close-btn" title="退出" aria-label="退出">✕</button>
+          </div>
+        </header>
+
+        <section class="greeting">
+          <div class="hello" id="greeting">小智向你问好</div>
+          <div class="clock"><span id="clock-hm">--:--</span><span class="clock-sep" id="clock-sep">:</span><span id="clock-sec">--</span></div>
+          <div class="date" id="date">加载中…</div>
+          <div class="day-progress" title="今天已过去的时间">
+            <div class="dp-track"><div class="dp-fill" id="dp-fill"></div></div>
+            <span class="dp-label" id="dp-label">今日 --%</span>
+          </div>
+        </section>
+
+        <section class="weather" id="weather">
+          <div class="weather-main">
+            <span class="w-emoji" id="w-emoji">🌤️</span>
+            <span class="w-temp" id="w-temp">--°</span>
+            <span class="w-text" id="w-text">定位中…</span>
+            <span class="w-city" id="w-city" title="点击修改城市">--</span>
+          </div>
+          <div class="weather-detail" id="w-detail"></div>
+        </section>
+
+        <section class="memo" id="memo-panel" aria-hidden="true">
+          <div class="memo-lines">
+            <textarea id="memo-text" class="memo-text" placeholder="记下点什么吧，重启后依然在这里…" spellcheck="false"></textarea>
+          </div>
+          <div class="memo-foot">
+            <span class="memo-status" id="memo-status">已同步本地</span>
+            <button id="memo-clear" class="text-btn" title="清空备忘录">清空</button>
+          </div>
+        </section>
+
+        <div class="popover" id="city-popover" hidden>
+          <div class="popover-title">设置城市</div>
+          <input id="city-input" class="city-input" type="text" placeholder="输入城市名，如：淮南" autocomplete="off" />
+          <div class="popover-actions">
+            <button id="city-save" class="primary-btn">确定</button>
+            <button id="city-close" class="text-btn">取消</button>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>

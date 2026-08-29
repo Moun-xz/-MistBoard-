@@ -1,0 +1,14 @@
+{
+  "name": "mistboard",
+  "version": "1.0.0",
+  "description": "MistBoard - 真透明 Windows 桌面看板",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icon": "tauri icon"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}
