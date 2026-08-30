@@ -231,6 +231,53 @@ fn bottom_hwnd(hwnd: *mut std::ffi::c_void) {
 #[cfg(not(windows))]
 fn bottom_hwnd(_hwnd: *mut std::ffi::c_void) {}
 
+/// 开机自启：HKCU\...\Run 注册表键
+const AUTOSTART_VALUE: &str = "MistBoard";
+#[cfg(windows)]
+const RUN_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
+
+#[cfg(windows)]
+fn autostart_enabled() -> bool {
+    use winreg::enums::{HKEY_CURRENT_USER, KEY_QUERY_VALUE};
+    use winreg::RegKey;
+    RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(RUN_KEY, KEY_QUERY_VALUE)
+        .and_then(|k| k.get_value::<String, _>(AUTOSTART_VALUE))
+        .is_ok()
+}
+
+#[cfg(windows)]
+fn set_autostart_registry(enable: bool) -> Result<(), String> {
+    use winreg::enums::{HKEY_CURRENT_USER, KEY_QUERY_VALUE, KEY_SET_VALUE};
+    use winreg::RegKey;
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(RUN_KEY, KEY_SET_VALUE | KEY_QUERY_VALUE)
+        .map_err(|e| e.to_string())?;
+    if enable {
+        let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+        key.set_value(AUTOSTART_VALUE, &exe.to_string_lossy().to_string())
+            .map_err(|e| e.to_string())
+    } else {
+        let _ = key.delete_value(AUTOSTART_VALUE);
+        Ok(())
+    }
+}
+
+#[cfg(not(windows))]
+fn autostart_enabled() -> bool { false }
+#[cfg(not(windows))]
+fn set_autostart_registry(_enable: bool) -> Result<(), String> { Ok(()) }
+
+#[tauri::command]
+fn get_autostart() -> bool {
+    autostart_enabled()
+}
+
+#[tauri::command]
+fn set_autostart(enable: bool) -> Result<(), String> {
+    set_autostart_registry(enable)
+}
+
 /// 📌 切换悬浮置顶；默认贴在桌面，被应用窗口盖住
 #[tauri::command]
 fn toggle_pin(window: tauri::WebviewWindow) -> Result<bool, String> {
@@ -270,6 +317,18 @@ pub fn run() {
         .manage(HttpClient(http))
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {
+                // 去掉可最小化样式：Win+D/显示桌面会跳过本窗口，看板常驻桌面
+                #[cfg(windows)]
+                if let Ok(raw) = window.hwnd() {
+                    use windows_sys::Win32::UI::WindowsAndMessaging::{
+                        GetWindowLongPtrW, SetWindowLongPtrW, GWL_STYLE, WS_MAXIMIZEBOX, WS_MINIMIZEBOX,
+                    };
+                    let hwnd = raw.0 as *mut std::ffi::c_void;
+                    unsafe {
+                        let style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+                        SetWindowLongPtrW(hwnd, GWL_STYLE, style & !((WS_MINIMIZEBOX | WS_MAXIMIZEBOX) as isize));
+                    }
+                }
                 if let Ok(Some(monitor)) = window.current_monitor() {
                     let size = monitor.size();
                     let scale = monitor.scale_factor();
@@ -298,26 +357,6 @@ pub fn run() {
                 if let Ok(raw) = window.hwnd() {
                     bottom_hwnd(raw.0 as *mut std::ffi::c_void);
                 }
-
-                // Win+D/显示桌面会把它最小化：无激活地恢复并压回底层
-                #[cfg(windows)]
-                {
-                    let w = window.clone();
-                    std::thread::spawn(move || loop {
-                        std::thread::sleep(std::time::Duration::from_millis(800));
-                        if let Ok(true) = w.is_minimized() {
-                            use windows_sys::Win32::UI::WindowsAndMessaging::ShowWindow;
-                            use windows_sys::Win32::UI::WindowsAndMessaging::SW_SHOWNOACTIVATE;
-                            if let Ok(raw) = w.hwnd() {
-                                let hwnd = raw.0 as *mut std::ffi::c_void;
-                                unsafe {
-                                    ShowWindow(hwnd, SW_SHOWNOACTIVATE);
-                                }
-                                bottom_hwnd(hwnd);
-                            }
-                        }
-                    });
-                }
             }
             Ok(())
         })
@@ -336,6 +375,18 @@ pub fn run() {
                         bottom_hwnd(raw.0 as *mut std::ffi::c_void);
                     }
                 }
+                // Win+D 最小化时窗口尺寸变为 0x0：无激活地恢复并压回底层，保证回到桌面就能看到
+                tauri::WindowEvent::Resized(size) => {
+                    if size.width == 0 || size.height == 0 {
+                        #[cfg(windows)]
+                        if let Ok(raw) = window.hwnd() {
+                            use windows_sys::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_SHOWNOACTIVATE};
+                            let hwnd = raw.0 as *mut std::ffi::c_void;
+                            unsafe { ShowWindow(hwnd, SW_SHOWNOACTIVATE); }
+                            bottom_hwnd(hwnd);
+                        }
+                    }
+                }
                 _ => {}
             }
         })
@@ -343,7 +394,8 @@ pub fn run() {
             load_memo, save_memo,
             get_weather, get_weather_by_city, load_cached_weather,
             save_city, load_city,
-            toggle_pin, quit_app
+            toggle_pin, quit_app,
+            get_autostart, set_autostart
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

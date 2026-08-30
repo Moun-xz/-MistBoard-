@@ -39,6 +39,7 @@ const memoStatus = document.getElementById("memo-status");
 const memoClear = document.getElementById("memo-clear");
 const quitBtn = document.getElementById("quit-btn");
 const pinBtn = document.getElementById("pin-btn");
+const autostartBtn = document.getElementById("autostart-btn");
 const cityPopover = document.getElementById("city-popover");
 const cityInput = document.getElementById("city-input");
 const citySave = document.getElementById("city-save");
@@ -198,6 +199,22 @@ pinBtn.addEventListener("click", async () => {
   pinBtn.title = isPinned ? "已悬浮置顶，点击放回桌面" : "悬浮置顶（当前贴在桌面）";
 });
 
+// ===== 开机自启 =====
+function setAutoUi(on) {
+  autostartBtn.classList.toggle("active", on);
+  autostartBtn.title = on ? "开机自启：已开启，点击关闭" : "开机自启：已关闭，点击开启";
+}
+autostartBtn.addEventListener("click", async () => {
+  const next = !autostartBtn.classList.contains("active");
+  try {
+    await invoke("set_autostart", { enable: next });
+    setAutoUi(next);
+  } catch (_) {}
+});
+async function loadAutoState() {
+  try { setAutoUi(await invoke("get_autostart")); } catch (_) {}
+}
+
 // ===== 退出 =====
 quitBtn.addEventListener("click", async () => { try { await invoke("quit_app"); } catch (_) {} });
 
@@ -205,6 +222,7 @@ quitBtn.addEventListener("click", async () => { try { await invoke("quit_app"); 
 async function init() {
   tickClock();
   await loadMemo();
+  loadAutoState();
   refreshWeather();
   setInterval(refreshWeather, 30 * 60 * 1000);
   // 备忘录默认展开，填满卡片下部

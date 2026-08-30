@@ -1922,6 +1922,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "windows-sys 0.59.0",
+ "winreg",
 ]
 
 [[package]]

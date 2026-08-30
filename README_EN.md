@@ -27,6 +27,7 @@ Clock · Weather · Notes, sitting at the very bottom of the Z-order, naturally 
 - **Weather** — powered by Open-Meteo, auto-refresh every 30 min, manual city selection, offline cache with quick retry
 - **Notes** — an always-open notepad with autosave
 - **Position memory** — drag it anywhere; it comes back after restart
+- **Optional auto-start** — toggle with the ⚡ button; and Win+D never hides it: the widget always waits on your desktop
 - **Featherweight** — a single ~4 MB exe, ~35 MB RAM
 
 ## 📦 Install
