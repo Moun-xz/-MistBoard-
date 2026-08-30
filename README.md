@@ -69,7 +69,7 @@ MistBoard 是一个**普通的顶层透明窗口**（Tauri 2 / WebView2），通
 ## 📚 数据来源
 
 - 天气数据：[Open-Meteo](https://open-meteo.com/)（免费、无需密钥）
-- IP 定位：[百度千帆 API](https://qifu-api.baidubce.com/ip/local/geo/v1/district)（仅在未设置城市时用于自动定位）
+- IP 定位：[ip-api.com](https://ip-api.com/)（仅在未设置城市时用于自动定位）
 
 本项目不收集、不上传任何用户数据；备忘录与设置仅保存在本机 `%APPDATA%`。
 

@@ -7,17 +7,13 @@ use tauri::Manager;
 #[derive(Serialize, Deserialize, Clone)]
 struct MemoData { content: String, updated_at: String }
 
-/// 百度 IP 定位返回
+/// ip-api.com IP 定位返回（免费接口，中文城市名 + 经纬度）
 #[derive(Deserialize, Clone)]
-struct BaiduIpResp {
-    #[serde(default)]
-    data: Option<BaiduIpData>,
-}
-#[derive(Deserialize, Clone)]
-struct BaiduIpData {
+struct IpLocateResp {
+    status: String,
     #[serde(default)] city: Option<String>,
-    #[serde(default)] longitude: Option<f64>,
-    #[serde(default)] latitude: Option<f64>,
+    #[serde(default)] lat: Option<f64>,
+    #[serde(default)] lon: Option<f64>,
 }
 
 /// Open-Meteo 城市搜索返回
@@ -170,16 +166,18 @@ async fn get_weather(app: tauri::AppHandle, client: tauri::State<'_, HttpClient>
         }
     }
 
-    // 百度 IP 定位兜底
+    // IP 定位兜底（ip-api.com 免费接口）
     let resp = client.0
-        .get("https://qifu-api.baidubce.com/ip/local/geo/v1/district")
+        .get("http://ip-api.com/json/?lang=zh-CN&fields=status,city,lat,lon")
         .send().await
         .map_err(|e| format!("定位请求失败: {}", e))?;
-    let baidu: BaiduIpResp = resp.json().await.map_err(|e| format!("解析定位失败: {}", e))?;
-    let d = baidu.data.ok_or("定位数据为空")?;
-    let city = d.city.unwrap_or_else(|| "未知".to_string());
-    let lat = d.latitude.unwrap_or(32.63);
-    let lon = d.longitude.unwrap_or(116.99);
+    let loc: IpLocateResp = resp.json().await.map_err(|e| format!("解析定位失败: {}", e))?;
+    if loc.status != "success" {
+        return Err("IP 定位失败".to_string());
+    }
+    let city = loc.city.ok_or("定位数据为空")?;
+    let lat = loc.lat.ok_or("定位数据为空")?;
+    let lon = loc.lon.ok_or("定位数据为空")?;
 
     fetch_weather(&app, &client.0, &city, lat, lon).await
 }

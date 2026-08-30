@@ -52,7 +52,7 @@ MistBoard is a **regular top-level transparent window** (Tauri 2 / WebView2) tha
 ## 📚 Data sources
 
 - Weather: [Open-Meteo](https://open-meteo.com/) (free, no API key)
-- IP geolocation: Baidu Qifu API (only used for auto-locate when no city is set)
+- IP geolocation: [ip-api.com](https://ip-api.com/) (only used for auto-locate when no city is set)
 
 No analytics, no data collection. Notes and settings stay in local `%APPDATA%`.
 
