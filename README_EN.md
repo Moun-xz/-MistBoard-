@@ -13,7 +13,15 @@ Clock · Weather · Notes, sitting at the very bottom of the Z-order, naturally 
 
 [Download](../../releases) · [中文说明](./README.md)
 
-<img src="docs/screenshot.png" width="480" alt="MistBoard screenshot"/>
+<img src="docs/screenshot-desktop.jpg" width="700" alt="MistBoard on the desktop"/>
+
+<sub>▲ Overall: pinned to the top-right of the desktop, naturally covered by app windows, blending into the wallpaper</sub>
+
+<br/>
+
+<img src="docs/screenshot-widget.png" width="260" alt="MistBoard close-up"/>
+
+<sub>▲ Close-up: gradient clock · day progress · weather · notes</sub>
 
 </div>
 
@@ -36,7 +44,7 @@ Download from [Releases](../../releases), or build from source:
 
 ```bash
 # Prerequisites: Rust (MSVC), Node.js ≥ 18, WebView2
-git clone https://github.com/your-username/MistBoard.git
+git clone https://github.com/Moun-xz/-MistBoard-.git
 cd MistBoard
 npm install
 

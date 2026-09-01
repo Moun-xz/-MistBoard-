@@ -14,7 +14,15 @@
 
 **[下载最新版](../../releases)** · [快速开始](#-快速开始) · [实现原理](#-实现原理) · [English](./README_EN.md)
 
-<img src="docs/screenshot.png" width="480" alt="MistBoard 桌面截图"/>
+<img src="docs/screenshot-desktop.jpg" width="700" alt="MistBoard 桌面整体效果"/>
+
+<sub>▲ 整体效果：贴在桌面右上角，被应用窗口自然遮盖，与壁纸融为一体</sub>
+
+<br/>
+
+<img src="docs/screenshot-widget.png" width="260" alt="MistBoard 局部效果"/>
+
+<sub>▲ 局部效果：渐变时钟 · 今日进度 · 天气 · 备忘录</sub>
 
 </div>
 
@@ -44,7 +52,7 @@
 
 ```bash
 # 前置：安装 Rust (MSVC)、Node.js ≥ 18、WebView2
-git clone https://github.com/你的用户名/MistBoard.git
+git clone https://github.com/Moun-xz/-MistBoard-.git
 cd MistBoard
 npm install
 
